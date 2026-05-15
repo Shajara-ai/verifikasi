@@ -8,7 +8,6 @@
         :root { --gold: #c5a059; --fikes-green: #27ae60; }
         body { background: #f0f0f0; display: flex; justify-content: center; padding: 20px; font-family: 'Times New Roman', serif; }
         
-        /* Bingkai Sertifikat Digital */
         .certificate-container {
             background: white;
             width: 800px;
@@ -23,7 +22,6 @@
         .header { color: #8d1a1a; font-size: 32px; font-weight: bold; margin-bottom: 5px; text-transform: uppercase; }
         .sub-header { font-size: 24px; font-weight: bold; margin-bottom: 20px; }
         .nomor-surat { font-size: 14px; margin-bottom: 30px; border-bottom: 1px solid #ddd; display: inline-block; padding-bottom: 5px; }
-        
         .label { font-style: italic; font-size: 18px; margin-bottom: 10px; }
         .nama-penerima { font-size: 30px; font-weight: bold; color: #333; text-decoration: underline; margin: 20px 0; display: block; }
         
@@ -53,10 +51,10 @@
     
     <div class="header">SERTIFIKAT</div>
     <div class="sub-header">PENGHARGAAN</div>
-    <div class="nomor-surat" id="nomorDisplay">Nomor: Loading...</div>
+    <div class="nomor-surat" id="nomorDisplay">Nomor: Menunggu Data...</div>
 
     <div class="label">Diberikan kepada :</div>
-    <div class="nama-penerima" id="namaDisplay">Loading...</div>
+    <div class="nama-penerima" id="namaDisplay">Menunggu Nama...</div>
     
     <div style="font-weight: bold; margin-bottom: 20px;">Sebagai :</div>
     <div style="font-size: 20px; font-weight: bold; margin-bottom: 20px;">NARASUMBER SEMINAR METODE<br>PENUGASAN DAN JENJANG KARIR PERAWAT</div>
@@ -86,38 +84,37 @@
 </div>
 
 <script>
-    // Simulasi Database (Nanti ini bisa diambil dari JSON atau API)
+    // Ambil data dari URL (Link yang dibuat Python)
+    const urlParams = new URLSearchParams(window.location.search);
+    const namaDariUrl = urlParams.get('nama');
+    const idDariUrl = urlParams.get('id');
+    const noDariUrl = urlParams.get('no'); // Jika Anda ingin kirim nomor surat via URL juga
+
+    // Database manual (opsional, sebagai backup)
     const database = {
-        "1805-001": { nama: "Ns. Dina Rahmawati, M.Kep., Sp.Kep.A", nomor: "2597/FIKes-UF/P.Ners/Sem.Mankep/IV/2026" },
-        "1805-002": { nama: "Ian, S.Kom", nomor: "2598/FIKes-UF/P.Ners/Sem.Mankep/IV/2026" }
+        "1805-001": { nama: "Ns. Dina Rahmawati, M.Kep., Sp.Kep.A", nomor: "2597/FIKes-UF/P.Ners/Sem.Mankep/IV/2026" }
     };
 
-    // Ambil ID dari URL (?id=1805-001)
-    const urlParams = new URLSearchParams(window.location.search);
-    const id = urlParams.get('id');
-
-    if (id && database[id]) {
-        document.getElementById('namaDisplay').innerText = database[id].nama;
-        document.getElementById('nomorDisplay').innerText = "Nomor: " + database[id].nomor;
-    } else {
-        document.body.innerHTML = "<h1>Data Sertifikat Tidak Ditemukan</h1>";
-    }
-</script>
-    
-<script>
-    // Skrip untuk menangkap nama dari link QR secara otomatis
-    const params = new URLSearchParams(window.location.search);
-    const namaDariUrl = params.get('nama');
-    const idDariUrl = params.get('id');
-
+    // 1. Prioritas Utama: Ambil dari URL (Hasil Scan QR Python)
     if (namaDariUrl) {
-        document.getElementById('nama_penerima').innerText = decodeURIComponent(namaDariUrl);
-    }
-    if (idDariUrl) {
-        // Jika Anda punya elemen ID di HTML, bisa diupdate juga
-        console.log("ID Verifikasi:", idDariUrl);
+        document.getElementById('namaDisplay').innerText = decodeURIComponent(namaDariUrl);
+        if (noDariUrl) {
+            document.getElementById('nomorDisplay').innerText = "Nomor: " + decodeURIComponent(noDariUrl);
+        } else if (idDariUrl) {
+            document.getElementById('nomorDisplay').innerText = "ID Verifikasi: " + idDariUrl;
+        }
+    } 
+    // 2. Prioritas Kedua: Ambil dari Database manual jika hanya ada ID
+    else if (idDariUrl && database[idDariUrl]) {
+        document.getElementById('namaDisplay').innerText = database[idDariUrl].nama;
+        document.getElementById('nomorDisplay').innerText = "Nomor: " + database[idDariUrl].nomor;
+    } 
+    // 3. Jika tidak ada data sama sekali
+    else {
+        document.getElementById('namaDisplay').innerText = "Data Tidak Ditemukan";
+        document.getElementById('nomorDisplay').innerText = "Silakan Scan Ulang QR Code Asli";
     }
 </script>
-    
+
 </body>
 </html>
