@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verifikasi Sertifikat Digital - FIKes UF</title>
+    <style>
+        body { background: #555; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; font-family: 'Georgia', serif; }
+        
+        /* Kertas Sertifikat */
+        .cert-card {
+            background: white;
+            width: 90%;
+            max-width: 850px;
+            padding: 50px;
+            border: 2px solid #c5a059;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            position: relative;
+            text-align: center;
+            background-image: url('https://www.transparenttextures.com/patterns/paper-fibers.png'); /* Efek tekstur kertas */
+        }
+
+        /* Badge Terverifikasi */
+        .badge-valid {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            background: #27ae60;
+            color: white;
+            padding: 8px 20px;
+            font-family: sans-serif;
+            font-weight: bold;
+            border-radius: 4px;
+            transform: rotate(3deg);
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
+            font-size: 14px;
+        }
+
+        .header { color: #8d1a1a; font-size: 38px; letter-spacing: 2px; margin-bottom: 5px; }
+        .sub-header { font-size: 22px; font-weight: bold; letter-spacing: 4px; margin-bottom: 20px; color: #333; }
+        .nomor { font-size: 14px; color: #666; margin-bottom: 40px; }
+        
+        .label { font-style: italic; font-size: 18px; margin-bottom: 15px; color: #555; }
+        .nama { 
+            font-size: 32px; 
+            font-weight: bold; 
+            color: #1a1a1a; 
+            border-bottom: 2px solid #333; 
+            display: inline-block; 
+            margin-bottom: 15px; 
+            padding: 0 20px;
+        }
+        
+        .sebagai { font-weight: bold; font-size: 18px; margin-top: 10px; }
+        .judul-seminar { font-size: 20px; font-weight: 900; color: #000; margin: 15px 0; line-height: 1.2; text-transform: uppercase; }
+        
+        .deskripsi { font-size: 14px; line-height: 1.6; color: #444; max-width: 90%; margin: 0 auto 50px auto; }
+
+        /* Tanda Tangan */
+        .ttd-container { display: flex; justify-content: space-between; margin-top: 40px; }
+        .ttd-box { width: 45%; font-size: 14px; }
+        .qr-small { width: 70px; height: 70px; background: #f9f9f9; border: 1px solid #ddd; margin: 10px auto; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #ccc; }
+        
+        @media (max-width: 600px) {
+            .cert-card { padding: 20px; }
+            .nama { font-size: 20px; }
+            .header { font-size: 28px; }
+            .ttd-container { flex-direction: column; gap: 30px; }
+            .ttd-box { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="cert-card">
+    <div class="badge-valid">✓ TERVERIFIKASI ASLI</div>
+    
+    <div class="header">SERTIFIKAT</div>
+    <div class="sub-header">PENGHARGAAN</div>
+    <div class="nomor" id="no_surat">Nomor: 2597/FIKes-UF/P.Ners/Sem.Mankep/IV/2026</div>
+
+    <div class="label">Diberikan kepada :</div>
+    <div class="nama" id="nama_penerima">Ns. Dina Rahmawati, M.Kep., Sp.Kep.A</div>
+    
+    <div class="sebagai">Sebagai :</div>
+    <div class="judul-seminar">NARASUMBER SEMINAR METODE<br>PENUGASAN DAN JENJANG KARIR PERAWAT</div>
+
+    <p class="deskripsi">
+        Dalam rangka pemenuhan tugas Mahasiswa Profesi Ners Universitas Faletehan pada Stase Keperawatan Manajemen yang dilaksanakan di RSUD. dr. Drajat Prawiranegara tahun 2026.
+    </p>
+
+    <div class="ttd-container">
+        <div class="ttd-box">
+            <p>Mengetahui,</p>
+            <p>Dekan Fakultas Ilmu Kesehatan</p>
+            <div class="qr-small">[QR CODE]</div>
+            <p><strong>Ahmad Jubaedi, S.KM., M.KM</strong></p>
+            <p>NIK. 06. 05. 102</p>
+        </div>
+        <div class="ttd-box">
+            <p>Ketua Pelaksana,</p>
+            <div style="height: 18px;"></div>
+            <div class="qr-small">[QR CODE]</div>
+            <p><strong>Hj. Milawati Lusiani, S.Kep., M.Kep., Ph.D</strong></p>
+            <p>NIK. 01. 01. 049</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Fitur Otomatis: Mengambil data dari URL (Contoh: index.html?nama=Ian&no=123)
+    const params = new URLSearchParams(window.location.search);
+    if(params.has('nama')) {
+        document.getElementById('nama_penerima').innerText = params.get('nama');
+    }
+    if(params.has('no')) {
+        document.getElementById('no_surat').innerText = "Nomor: " + params.get('no');
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Sertifikat Verifikasi - FIKes UF</title>
+    <style>
+        :root { --gold: #c5a059; --fikes-green: #27ae60; }
+        body { background: #f0f0f0; display: flex; justify-content: center; padding: 20px; font-family: 'Times New Roman', serif; }
+        
+        /* Bingkai Sertifikat Digital */
+        .certificate-container {
+            background: white;
+            width: 800px;
+            padding: 40px;
+            border: 15px solid white;
+            outline: 2px solid var(--gold);
+            box-shadow: 0 0 30px rgba(0,0,0,0.1);
+            position: relative;
+            text-align: center;
+        }
+
+        .header { color: #8d1a1a; font-size: 32px; font-weight: bold; margin-bottom: 5px; text-transform: uppercase; }
+        .sub-header { font-size: 24px; font-weight: bold; margin-bottom: 20px; }
+        .nomor-surat { font-size: 14px; margin-bottom: 30px; border-bottom: 1px solid #ddd; display: inline-block; padding-bottom: 5px; }
+        
+        .label { font-style: italic; font-size: 18px; margin-bottom: 10px; }
+        .nama-penerima { font-size: 30px; font-weight: bold; color: #333; text-decoration: underline; margin: 20px 0; display: block; }
+        
+        .status-valid {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--fikes-green);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 5px;
+            font-family: sans-serif;
+            font-weight: bold;
+            transform: rotate(5deg);
+        }
+
+        .footer-table { width: 100%; margin-top: 50px; }
+        .signature { width: 50%; vertical-align: top; }
+        .signature p { margin: 2px; font-size: 14px; }
+        .qr-placeholder { width: 80px; height: 80px; background: #eee; margin: 10px auto; }
+    </style>
+</head>
+<body>
+
+<div class="certificate-container">
+    <div class="status-valid">✓ TERVERIFIKASI ASLI</div>
+    
+    <div class="header">SERTIFIKAT</div>
+    <div class="sub-header">PENGHARGAAN</div>
+    <div class="nomor-surat" id="nomorDisplay">Nomor: Loading...</div>
+
+    <div class="label">Diberikan kepada :</div>
+    <div class="nama-penerima" id="namaDisplay">Loading...</div>
+    
+    <div style="font-weight: bold; margin-bottom: 20px;">Sebagai :</div>
+    <div style="font-size: 20px; font-weight: bold; margin-bottom: 20px;">NARASUMBER SEMINAR METODE<br>PENUGASAN DAN JENJANG KARIR PERAWAT</div>
+
+    <p style="font-size: 14px; max-width: 80%; margin: 0 auto;">
+        Dalam rangka pemenuhan tugas Mahasiswa Profesi Ners Universitas Faletehan pada Stase Keperawatan Manajemen yang dilaksanakan di RSUD. dr. Drajat Prawiranegara tahun 2026.
+    </p>
+
+    <table class="footer-table">
+        <tr>
+            <td class="signature">
+                <p>Mengetahui,</p>
+                <p>Dekan Fakultas Ilmu Kesehatan</p>
+                <div class="qr-placeholder"></div>
+                <p><strong>Ahmad Jubaedi, S.KM., M.KM</strong></p>
+                <p>NIK. 06. 05. 102</p>
+            </td>
+            <td class="signature">
+                <p>Ketua Pelaksana,</p>
+                <div style="height: 15px;"></div>
+                <div class="qr-placeholder"></div>
+                <p><strong>Hj. Milawati Lusiani, S.Kep., M.Kep., Ph.D</strong></p>
+                <p>NIK. 01. 01. 049</p>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<script>
+    // Simulasi Database (Nanti ini bisa diambil dari JSON atau API)
+    const database = {
+        "1805-001": { nama: "Ns. Dina Rahmawati, M.Kep., Sp.Kep.A", nomor: "2597/FIKes-UF/P.Ners/Sem.Mankep/IV/2026" },
+        "1805-002": { nama: "Ian, S.Kom", nomor: "2598/FIKes-UF/P.Ners/Sem.Mankep/IV/2026" }
+    };
+
+    // Ambil ID dari URL (?id=1805-001)
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get('id');
+
+    if (id && database[id]) {
+        document.getElementById('namaDisplay').innerText = database[id].nama;
+        document.getElementById('nomorDisplay').innerText = "Nomor: " + database[id].nomor;
+    } else {
+        document.body.innerHTML = "<h1>Data Sertifikat Tidak Ditemukan</h1>";
+    }
+</script>
+
+</body>
+</html>
