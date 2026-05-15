@@ -51,37 +51,47 @@
     
     <div class="header">SERTIFIKAT</div>
     <div class="sub-header">PENGHARGAAN</div>
-    <div class="nomor-surat" id="nomorDisplay">Nomor: Menunggu Data...</div>
+    <div class="nomor-surat" id="nomorDisplay">Memuat Sertifikat...</div>
 
     <div class="label">Diberikan kepada :</div>
-    <div class="nama-penerima" id="namaDisplay">Menunggu Nama...</div>
+    <div class="nama-penerima" id="namaDisplay">Nama Penerima</div>
     
-    <div style="font-weight: bold; margin-bottom: 20px;">Sebagai :</div>
-    <div style="font-size: 20px; font-weight: bold; margin-bottom: 20px;">NARASUMBER SEMINAR METODE<br>PENUGASAN DAN JENJANG KARIR PERAWAT</div>
+    <div style="font-weight: bold; margin-bottom: 10px;">Sebagai :</div>
+    <div id="peranDisplay" style="font-size: 18px; font-weight: bold; margin-bottom: 10px; color: #000; text-transform: uppercase;">
+        NARASUMBER / PESERTA
+    </div>
 
-    <p style="font-size: 14px; max-width: 80%; margin: 0 auto;">
-        Dalam rangka pemenuhan tugas Mahasiswa Profesi Ners Universitas Faletehan pada Stase Keperawatan Manajemen yang dilaksanakan di RSUD. dr. Drajat Prawiranegara tahun 2026.
+    <p style="font-size: 14px; margin-bottom: 20px;">
+        Yang dilaksanakan pada tanggal: <span id="tglDisplay" style="font-weight: bold;">-</span>
     </p>
 
-    <table class="footer-table">
-        <tr>
-            <td class="signature">
-                <p>Mengetahui,</p>
-                <p>Dekan Fakultas Ilmu Kesehatan</p>
-                <div class="qr-placeholder"></div>
-                <p><strong>Ahmad Jubaedi, S.KM., M.KM</strong></p>
-                <p>NIK. 06. 05. 102</p>
-            </td>
-            <td class="signature">
-                <p>Ketua Pelaksana,</p>
-                <div style="height: 15px;"></div>
-                <div class="qr-placeholder"></div>
-                <p><strong>Hj. Milawati Lusiani, S.Kep., M.Kep., Ph.D</strong></p>
-                <p>NIK. 01. 01. 049</p>
-            </td>
-        </tr>
-    </table>
-</div>
+    <p style="font-size: 13px; max-width: 85%; margin: 0 auto 30px auto; line-height: 1.4;">
+        Dalam rangka pemenuhan tugas Mahasiswa Profesi Ners Universitas Faletehan pada Stase Keperawatan Manajemen yang dilaksanakan di RSUD. dr. Drajat Prawiranegara tahun 2026.
+    </p>
+    
+    </div>
+
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const nama = urlParams.get('nama');
+    const id = urlParams.get('id');
+    const peran = urlParams.get('peran');
+    const tgl = urlParams.get('tgl');
+
+    if (nama) {
+        document.getElementById('namaDisplay').innerText = decodeURIComponent(nama);
+        document.getElementById('nomorDisplay').innerText = "ID Verifikasi: " + (id || "-");
+        
+        if (peran) {
+            document.getElementById('peranDisplay').innerText = decodeURIComponent(peran);
+        }
+        if (tgl) {
+            document.getElementById('tglDisplay').innerText = decodeURIComponent(tgl);
+        }
+    } else {
+        document.body.innerHTML = "<h2 style='text-align:center; margin-top:50px;'>Data Sertifikat Tidak Ditemukan</h2>";
+    }
+</script>
 
 <script>
     // Ambil data dari URL (Link yang dibuat Python)
