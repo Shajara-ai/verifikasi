@@ -103,6 +103,21 @@
         document.body.innerHTML = "<h1>Data Sertifikat Tidak Ditemukan</h1>";
     }
 </script>
+    
+<script>
+    // Skrip untuk menangkap nama dari link QR secara otomatis
+    const params = new URLSearchParams(window.location.search);
+    const namaDariUrl = params.get('nama');
+    const idDariUrl = params.get('id');
 
+    if (namaDariUrl) {
+        document.getElementById('nama_penerima').innerText = decodeURIComponent(namaDariUrl);
+    }
+    if (idDariUrl) {
+        // Jika Anda punya elemen ID di HTML, bisa diupdate juga
+        console.log("ID Verifikasi:", idDariUrl);
+    }
+</script>
+    
 </body>
 </html>
