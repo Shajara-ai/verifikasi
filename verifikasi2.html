@@ -164,7 +164,7 @@
                 <div class="tte-status" id="docJabatan1">-</div>
                 <div style="font-size: 12px; color: #7f8c8d;">🔒 Digital Signature Valid via UPM FIKes</div>
             </div>
-            <div class="tte-box">
+            <div class="tte-box" id="boxTte2">
                 <div class="tte-name" id="docPenanda2">-</div>
                 <div class="tte-status" id="docJabatan2">-</div>
                 <div style="font-size: 12px; color: #7f8c8d;">🔒 Digital Signature Valid via Panitia</div>
@@ -203,6 +203,14 @@
                     document.getElementById('docJabatan1').innerText = data.jabatan1;
                     document.getElementById('docPenanda2').innerText = data.penanda2;
                     document.getElementById('docJabatan2').innerText = data.jabatan2;
+
+                    // LOGIKA OTOMATIS: Sembunyikan kotak kedua jika data di Excel kosong
+                    const boxTte2 = document.getElementById('boxTte2');
+                    if (!data.penanda2 || data.penanda2.trim() === "" || data.penanda2 === "-") {
+                        boxTte2.style.display = "none"; // Kotak kedua otomatis lenyap dari layar
+                    } else {
+                        boxTte2.style.display = "block"; // Kotak kedua muncul jika ada datanya
+                    }
                     
                     document.getElementById('docId').innerText = "?id=" + id;
 
