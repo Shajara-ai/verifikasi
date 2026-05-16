@@ -97,21 +97,24 @@
 <script>
     const urlParams = new URLSearchParams(window.location.search);
     const nama = urlParams.get('nama');
-    const peran = urlParams.get('peran');
-    const tgl = urlParams.get('tgl');
-    const id = urlParams.get('id');
 
     if (nama) {
+        // 1. Ambil Nama dari link dan bersihkan %20 jadi spasi
         const decodedNama = decodeURIComponent(nama);
-        document.getElementById('namaDisplay').innerText = decodedNama;
-        document.getElementById('peranDisplay').innerText = decodeURIComponent(peran || "Staff Akademik");
-        document.getElementById('tglDisplay').innerText = decodeURIComponent(tgl || "-");
         
-        // Buat Hash buatan agar terlihat resmi
+        // 2. Tampilkan Nama di halaman
+        document.getElementById('namaDisplay').innerText = decodedNama;
+        
+        // 3. Data Statis (Karena link dibuat ringkas, data ini kita set manual)
+        document.getElementById('peranDisplay').innerText = "Peserta / Narasumber";
+        document.getElementById('tglDisplay').innerText = "Tahun 2026";
+        
+        // 4. Buat Hash buatan agar terlihat resmi
         const fakeHash = btoa(decodedNama).toLowerCase().substring(0, 32);
         document.getElementById('hashDisplay').innerText = fakeHash;
 
-        // Logika Tombol Download (Arahkan ke folder files/)
+        // 5. LOGIKA DOWNLOAD: Otomatis cari file di folder files/
+        // Contoh: ?nama=Tom -> Mencari files/Sertifikat_Tom.pdf
         const namaFilePDF = "Sertifikat_" + decodedNama.replace(/ /g, "_") + ".pdf";
         const linkKeFile = "https://shajara-ai.github.io/verifikasi/files/" + namaFilePDF;
 
