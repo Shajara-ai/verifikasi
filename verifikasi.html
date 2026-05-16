@@ -10,20 +10,22 @@
         
         .certificate-container {
             background: white;
-            width: 800px;
+            width: 100%;
+            max-width: 800px;
             padding: 40px;
             border: 15px solid white;
             outline: 2px solid var(--gold);
             box-shadow: 0 0 30px rgba(0,0,0,0.1);
             position: relative;
             text-align: center;
+            box-sizing: border-box;
         }
 
         .header { color: #8d1a1a; font-size: 32px; font-weight: bold; margin-bottom: 5px; text-transform: uppercase; }
         .sub-header { font-size: 24px; font-weight: bold; margin-bottom: 20px; }
         .nomor-surat { font-size: 14px; margin-bottom: 30px; border-bottom: 1px solid #ddd; display: inline-block; padding-bottom: 5px; }
         .label { font-style: italic; font-size: 18px; margin-bottom: 10px; }
-        .nama-penerima { font-size: 30px; font-weight: bold; color: #333; text-decoration: underline; margin: 20px 0; display: block; }
+        .nama-penerima { font-size: 28px; font-weight: bold; color: #333; text-decoration: underline; margin: 20px 0; display: block; }
         
         .status-valid {
             position: absolute;
@@ -36,12 +38,23 @@
             font-family: sans-serif;
             font-weight: bold;
             transform: rotate(5deg);
+            font-size: 12px;
         }
 
-        .footer-table { width: 100%; margin-top: 50px; }
-        .signature { width: 50%; vertical-align: top; }
-        .signature p { margin: 2px; font-size: 14px; }
-        .qr-placeholder { width: 80px; height: 80px; background: #eee; margin: 10px auto; }
+        /* Gaya Tombol Download */
+        .btn-download {
+            display: none; /* Sembunyikan dulu, muncul jika data valid */
+            background: var(--fikes-green);
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-family: sans-serif;
+            font-weight: bold;
+            margin-top: 30px;
+            transition: 0.3s;
+        }
+        .btn-download:hover { background: #1e8449; }
     </style>
 </head>
 <body>
@@ -68,61 +81,43 @@
     <p style="font-size: 13px; max-width: 85%; margin: 0 auto 30px auto; line-height: 1.4;">
         Dalam rangka pemenuhan tugas Mahasiswa Profesi Ners Universitas Faletehan pada Stase Keperawatan Manajemen yang dilaksanakan di RSUD. dr. Drajat Prawiranegara tahun 2026.
     </p>
-    
-    </div>
+
+    <a id="btnDownload" href="#" class="btn-download" target="_blank">
+        📥 UNDUH SERTIFIKAT PDF
+    </a>
+</div>
 
 <script>
+    // 1. Ambil data dari link QR Code (URL)
     const urlParams = new URLSearchParams(window.location.search);
     const nama = urlParams.get('nama');
     const id = urlParams.get('id');
     const peran = urlParams.get('peran');
     const tgl = urlParams.get('tgl');
 
+    // 2. Jika data Nama ada di URL
     if (nama) {
-        document.getElementById('namaDisplay').innerText = decodeURIComponent(nama);
+        const decodedNama = decodeURIComponent(nama);
+        document.getElementById('namaDisplay').innerText = decodedNama;
         document.getElementById('nomorDisplay').innerText = "ID Verifikasi: " + (id || "-");
         
-        if (peran) {
-            document.getElementById('peranDisplay').innerText = decodeURIComponent(peran);
+        if (peran) document.getElementById('peranDisplay').innerText = decodeURIComponent(peran);
+        if (tgl) document.getElementById('tglDisplay').innerText = decodeURIComponent(tgl);
+
+        // 3. Logika Munculkan Tombol Download
+        // Nama file harus sama dengan skrip Python: Sertifikat_Nama_Lengkap.pdf
+        const namaFilePDF = "Sertifikat_" + decodedNama.replace(/ /g, "_") + ".pdf";
+        const linkKeFile = "https://shajara-ai.github.io/verifikasi/files/" + namaFilePDF;
+
+        const btn = document.getElementById('btnDownload');
+        if (btn) {
+            btn.href = linkKeFile;
+            btn.style.display = "inline-block"; // Munculkan tombol
         }
-        if (tgl) {
-            document.getElementById('tglDisplay').innerText = decodeURIComponent(tgl);
-        }
+
     } else {
-        document.body.innerHTML = "<h2 style='text-align:center; margin-top:50px;'>Data Sertifikat Tidak Ditemukan</h2>";
-    }
-</script>
-
-<script>
-    // Ambil data dari URL (Link yang dibuat Python)
-    const urlParams = new URLSearchParams(window.location.search);
-    const namaDariUrl = urlParams.get('nama');
-    const idDariUrl = urlParams.get('id');
-    const noDariUrl = urlParams.get('no'); // Jika Anda ingin kirim nomor surat via URL juga
-
-    // Database manual (opsional, sebagai backup)
-    const database = {
-        "1805-001": { nama: "Ns. Dina Rahmawati, M.Kep., Sp.Kep.A", nomor: "2597/FIKes-UF/P.Ners/Sem.Mankep/IV/2026" }
-    };
-
-    // 1. Prioritas Utama: Ambil dari URL (Hasil Scan QR Python)
-    if (namaDariUrl) {
-        document.getElementById('namaDisplay').innerText = decodeURIComponent(namaDariUrl);
-        if (noDariUrl) {
-            document.getElementById('nomorDisplay').innerText = "Nomor: " + decodeURIComponent(noDariUrl);
-        } else if (idDariUrl) {
-            document.getElementById('nomorDisplay').innerText = "ID Verifikasi: " + idDariUrl;
-        }
-    } 
-    // 2. Prioritas Kedua: Ambil dari Database manual jika hanya ada ID
-    else if (idDariUrl && database[idDariUrl]) {
-        document.getElementById('namaDisplay').innerText = database[idDariUrl].nama;
-        document.getElementById('nomorDisplay').innerText = "Nomor: " + database[idDariUrl].nomor;
-    } 
-    // 3. Jika tidak ada data sama sekali
-    else {
-        document.getElementById('namaDisplay').innerText = "Data Tidak Ditemukan";
-        document.getElementById('nomorDisplay').innerText = "Silakan Scan Ulang QR Code Asli";
+        // Jika scan gagal / tidak ada data
+        document.querySelector('.certificate-container').innerHTML = "<h2>Data Sertifikat Tidak Ditemukan</h2><p>Silakan scan ulang QR Code yang ada pada sertifikat asli.</p>";
     }
 </script>
 
