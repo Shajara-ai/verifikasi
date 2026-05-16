@@ -98,57 +98,35 @@
     const urlParams = new URLSearchParams(window.location.search);
     const id = urlParams.get('id');
 
-    // ============================================================
-    // DATABASE DATA (HASIL COPY-PASTE DARI PYTHON)
-    // ============================================================
-    const database = {
-        "1": { nama: "Ns. Dina Rahmawati, M.Kep., Sp.Kep., MB", peran: "NARASUMBER SEMINAR METODE PENUGASAN DAN JENJANG KARIR PERAWAT", tgl: "2597/FIKes-UF/P.Ners/Sem.Mankep/IV/2026", penanda: "Ahmad Jubaedi, SKM., M.KM" },
-        // PASTE BARIS BARU DARI TERMINAL PYTHON DI BAWAH INI:
-        
-    };
-    // ============================================================
+    // MENGAMBIL DATA OTOMATIS DARI JSON
+    fetch('data.json')
+        .then(response => response.json())
+        .then(database => {
+            if (id && database[id]) {
+                const data = database[id];
+                document.getElementById('namaDisplay').innerText = data.nama;
+                document.getElementById('peranDisplay').innerText = data.peran;
+                document.getElementById('tglDisplay').innerText = data.tgl;
+                
+                const fakeHash = btoa(data.nama + id).toLowerCase().substring(0, 32);
+                document.getElementById('hashDisplay').innerText = fakeHash;
 
-    if (id && database[id]) {
-        const data = database[id];
-        
-        // 1. Tampilkan Nama
-        document.getElementById('namaDisplay').innerText = data.nama;
-        
-        // 2. Tampilkan Kegiatan/Peran
-        document.getElementById('peranDisplay').innerText = data.peran;
-        
-        // 3. Tampilkan Nomor Surat (menggunakan label tgl dari python)
-        document.getElementById('tglDisplay').innerText = data.tgl;
-        
-        // 4. Tampilkan Penanda Tangan (Jika ada elemen ID penandaDisplay di HTML-mu)
-        if(document.getElementById('penandaDisplay')) {
-            document.getElementById('penandaDisplay').innerText = data.penanda;
-        }
-
-        // 5. Buat Hash Keamanan (Agar terlihat resmi)
-        const fakeHash = btoa(data.nama + id).toLowerCase().substring(0, 32);
-        document.getElementById('hashDisplay').innerText = fakeHash;
-
-        // 6. Logika Download PDF (Mencari file di folder files/)
-        // Mengubah spasi jadi underscore sesuai dengan hasil simpan Python
-        const namaFilePDF = "Sertifikat_" + data.nama.replace(/ /g, "_").replace(/\./g, "") + ".pdf";
-        const btn = document.getElementById('btnDownload');
-        
-        if (btn) {
-            btn.href = "https://shajara-ai.github.io/verifikasi/files/" + namaFilePDF;
-            btn.style.display = "inline-block";
-        }
-    } else {
-        // Jika ID tidak ditemukan atau link salah
-        document.querySelector('.srikandi-container').innerHTML = `
-            <div style="text-align:center; padding: 50px 20px;">
-                <h2 style="color: #e74c3c;">Data Tidak Ditemukan</h2>
-                <p>Maaf, sertifikat dengan ID tersebut tidak terdaftar di sistem verifikasi FIKes Universitas Faletehan.</p>
-                <a href="index.html" style="color: #3498db;">Kembali ke Beranda</a>
-            </div>
-        `;
-    }
+                // Logika Download
+                const namaFilePDF = "Sertifikat_" + data.nama.replace(/ /g, "_").replace(/\./g, "") + ".pdf";
+                const btn = document.getElementById('btnDownload');
+                if (btn) {
+                    btn.href = "files/" + namaFilePDF;
+                    btn.style.display = "inline-block";
+                }
+            } else {
+                document.querySelector('.srikandi-container').innerHTML = "<h3>Data Tidak Ditemukan</h3>";
+            }
+        })
+        .catch(err => {
+            console.error("Gagal mengambil data:", err);
+            document.querySelector('.srikandi-container').innerHTML = "<h3>Sistem sedang update...</h3>";
+        });
 </script>
-
+    
 </body>
 </html>
