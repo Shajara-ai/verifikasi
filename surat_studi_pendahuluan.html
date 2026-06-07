@@ -37,10 +37,6 @@
         /* Pembatas Sub-Konten */
         .heading-section { font-size: 12px; font-weight: 700; color: var(--primary-color); text-transform: uppercase; letter-spacing: 1px; padding: 6px 12px; background: #f1f8e9; border-left: 4px solid var(--primary-color); margin-top: 25px; text-align: left; border-radius: 0 4px 4px 0; }
         
-        /* Daftar Kebutuhan Data */
-        .list-data { padding-left: 20px; font-weight: 600; font-size: 13px; text-align: left; margin-top: 8px; color: var(--text-color); }
-        .list-data li { padding: 4px 0; border-bottom: 1px dashed #cfd8dc; }
-        
         /* 🔒 Kotak Pernyataan Pengesahan Dekan */
         .legal-statement-box { background: #fbfbfc; border: 1px solid #e0e0e0; border-radius: 10px; padding: 15px; margin-top: 25px; text-align: left; position: relative; overflow: hidden; }
         .legal-statement-box::before { content: ""; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: #2980b9; }
@@ -85,9 +81,6 @@
             <tr><th>Judul / Topik</th><td id="docJudul" style="font-style: italic; font-weight: 500; color: #1a237e;">-</td></tr>
         </table>
 
-        <div class="heading-section">Data yang Diperlukan</div>
-        <ul class="list-data" id="areaData"></ul>
-
         <div class="legal-statement-box">
             <div class="legal-title">Pernyataan Pengesahan Elektronik</div>
             <div class="legal-text">
@@ -104,43 +97,32 @@
 
 <script>
     try {
-    const urlParams = new URLSearchParams(window.location.search);
-    const dataB64 = urlParams.get('d');
+        const urlParams = new URLSearchParams(window.location.search);
+        const dataB64 = urlParams.get('d');
 
-    if (!dataB64) {
-        document.getElementById('error').style.display = 'block';
-    } else {
-        const standardB64 = dataB64.replace(/_/g, '/').replace(/-/g, '+');
-        const decodedString = atob(standardB64);
-        const parsedJson = decodeURIComponent(decodedString);
-        const dataArr = JSON.parse(parsedJson);
-
-        // 🟢 Cuma nampilin angka depan murni dari barcode tanpa embel-embel kode lain
-        document.getElementById('docNomor').innerText = dataArr[0] || "-";
-        
-        document.getElementById('docTanggal').innerText = dataArr[1] || "-";
-        document.getElementById('docNama').innerText = dataArr[4] || "-";
-        document.getElementById('docNim').innerText = dataArr[5] || "-";
-        document.getElementById('docProdi').innerText = dataArr[6] || "-";
-        document.getElementById('docJudul').innerText = dataArr[7] || "-";
-
-        let htmlData = "";
-        if (dataArr[8] && dataArr[8].trim() !== "" && dataArr[8] !== "-") {
-            const items = dataArr[8].split('<->');
-            items.forEach(item => {
-                if(item.trim()) htmlData += "<li>" + item.trim() + "</li>";
-            });
+        if (!dataB64) {
+            document.getElementById('error').style.display = 'block';
         } else {
-            htmlData = "<li>Data Primer Hasil Observasi dan Pendukung Lainnya</li>";
-        }
-        document.getElementById('areaData').innerHTML = htmlData;
+            const standardB64 = dataB64.replace(/_/g, '/').replace(/-/g, '+');
+            const decodedString = atob(standardB64);
+            const parsedJson = decodeURIComponent(decodedString);
+            const dataArr = JSON.parse(parsedJson);
 
-        document.getElementById('content').style.display = 'block';
+            // Tampilkan nomor angka depan murni
+            document.getElementById('docNomor').innerText = dataArr[0] || "-";
+            document.getElementById('docTanggal').innerText = dataArr[1] || "-";
+            document.getElementById('docNama').innerText = dataArr[4] || "-";
+            document.getElementById('docNim').innerText = dataArr[5] || "-";
+            document.getElementById('docProdi').innerText = dataArr[6] || "-";
+            document.getElementById('docJudul').innerText = dataArr[7] || "-";
+
+            // Tampilkan wadah konten utama
+            document.getElementById('content').style.display = 'block';
+        }
+    } catch (e) {
+        console.error("Gagal melakukan verifikasi dokumen:", e);
+        document.getElementById('error').style.display = 'block';
     }
-} catch (e) {
-    console.error("Gagal melakukan verifikasi dokumen:", e);
-    document.getElementById('error').style.display = 'block';
-}
 </script>
 </body>
 </html>
