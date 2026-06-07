@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Verifikasi Dokumen FIKes Faletehan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #27ae60;
+            --bg-color: #f4f6f9;
+            --text-color: #2c3e50;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Poppins', sans-serif; background-color: var(--bg-color); color: var(--text-color); line-height: 1.6; padding: 20px; }
+        .container { max-width: 500px; background: white; margin: 20px auto; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; border-top: 8px solid var(--primary-color); }
+        .logo-header { width: 80px; margin-bottom: 15px; }
+        .status-badge { background-color: #e8f8f0; color: var(--primary-color); padding: 12px 20px; border-radius: 30px; font-weight: 700; display: inline-block; margin-bottom: 10px; font-size: 14px; border: 1px solid #b7ebb3; }
+        .dekan-badge { background-color: #ebf5fb; color: #2980b9; padding: 6px 15px; border-radius: 20px; font-weight: 600; display: inline-block; margin-bottom: 20px; font-size: 11px; border: 1px solid #aed6f1; text-transform: uppercase; }
+        .info-table { width: 100%; border-collapse: collapse; margin-top: 15px; text-align: left; }
+        .info-table th, .info-table td { padding: 10px; border-bottom: 1px solid #ededed; font-size: 13px; vertical-align: top; }
+        .info-table th { color: #7f8c8d; font-weight: 400; width: 35%; }
+        .info-table td { font-weight: 600; color: var(--text-color); }
+        .heading-section { font-size: 12px; font-weight: 700; color: var(--primary-color); text-transform: uppercase; letter-spacing: 1px; padding: 8px 12px; background: #f9f9f9; border-left: 4px solid var(--primary-color); margin-top: 15px; text-align: left; }
+        .list-data { padding-left: 20px; font-weight: 600; font-size: 13px; text-align: left; margin-top: 5px; color: var(--text-color); }
+        .list-data li { padding: 3px 0; border-bottom: 1px dashed #ededed; }
+        .error-msg { color: #e74c3c; font-weight: bold; margin: 20px 0; display: none; }
+        .footer { margin-top: 25px; font-size: 11px; color: #95a5a6; border-top: 1px solid #eee; padding-top: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <img src="files/logo.jpeg" alt="Logo Kampus" class="logo-header" onerror="this.style.display='none'">
+    <h3 style="margin-bottom: 5px; font-size: 16px;">Sistem Validasi Surat Elektronik</h3>
+    <p style="color: #7f8c8d; font-size: 12px; margin-bottom: 15px;">Faculty of Health Sciences (FIKes)</p>
+
+    <div id="error" class="error-msg">❌ Data Tautan Surat Tidak Valid / Rusak!</div>
+
+    <div id="content" style="display: none;">
+        <div class="status-badge">🟢 DOKUMEN ASLI & VALID</div>
+        <div class="dekan-badge">🔒 DISETUJUI OLEH DEKAN FIKES</div>
+        
+        <table class="info-table">
+            <tr><th>No. Surat</th><td id="docNomor">-</td></tr>
+            <tr><th>Tanggal Terbit</th><td id="docTanggal">-</td></tr>
+            <tr><th>Tujuan Surat</th><td id="docKepada">-</td></tr>
+            <tr><th>Instansi</th><td id="docInstansi">-</td></tr>
+        </table>
+
+        <div class="heading-section">Identitas Mahasiswa</div>
+        <table class="info-table">
+            <tr><th>Nama Mhs</th><td id="docNama">-</td></tr>
+            <tr><th>NIM</th><td id="docNim">-</td></tr>
+            <tr><th>Prodi</th><td id="docProdi">-</td></tr>
+        </table>
+
+        <div class="heading-section">Topik Penelitian</div>
+        <table class="info-table">
+            <tr><th>Judul</th><td id="docJudul" style="font-style: italic;">-</td></tr>
+        </table>
+
+        <div class="heading-section">Data Yang Dicari</div>
+        <ul class="list-data" id="areaData"></ul>
+    </div>
+
+    <div class="footer">
+        Sistem Penjaminan Mutu Akademik<br>
+        <strong>Universitas Faletehan Serang</strong>
+    </div>
+</div>
+
+<script>
+    try {
+        // Ambil parameter data terenkripsi Base64 dari URL (?d=...)
+        const urlParams = new URLSearchParams(window.location.search);
+        const dataB64 = urlParams.get('d');
+
+        if (!dataB64) {
+            document.getElementById('error').style.display = 'block';
+        } else {
+            // Decode Base64 kembali menjadi string teks asli UTF-8
+            const reresik = atob(dataB64.replace(/_/g, '/').replace(/-/g, '+'));
+            const dataArr = JSON.parse(decodeURIComponent(reresik));
+
+            // mapping array data dari URL
+            document.getElementById('docNomor').innerText = dataArr[0];
+            document.getElementById('docTanggal').innerText = dataArr[1];
+            document.getElementById('docKepada').innerText = dataArr[2];
+            document.getElementById('docInstansi').innerText = dataArr[3];
+            document.getElementById('docNama').innerText = dataArr[4];
+            document.getElementById('docNim').innerText = dataArr[5];
+            document.getElementById('docProdi').innerText = dataArr[6];
+            document.getElementById('docJudul').innerText = dataArr[7];
+
+            // Tampilkan rincian data pencarian (delimiter <->)
+            let htmlData = "";
+            if (dataArr[8]) {
+                const items = dataArr[8].split('<->');
+                items.forEach(item => {
+                    if(item.trim()) htmlData += "<li>" + item.trim() + "</li>";
+                });
+            } else {
+                htmlData = "<li>Data Primer Hasil Observasi dan Pendukung Lainnya</li>";
+            }
+            document.getElementById('areaData').innerHTML = htmlData;
+
+            // Tampilkan box utama
+            document.getElementById('content').style.display = 'block';
+        }
+    } catch (e) {
+        console.error(e);
+        document.getElementById('error').style.display = 'block';
+    }
+</script>
+</body>
+</html>
