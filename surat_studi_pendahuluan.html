@@ -28,7 +28,7 @@
         .status-container { display: flex; flex-direction: column; align-items: center; gap: 8px; margin-bottom: 25px; }
         .status-badge { background-color: #e8f5e9; color: var(--secondary-color); padding: 10px 24px; border-radius: 50px; font-weight: 700; font-size: 13px; letter-spacing: 0.5px; border: 1px solid #a5d6a7; display: inline-flex; align-items: center; gap: 8px; }
         
-        /* Tabel Informasi Berkas */
+        /* Tabel Informasi Berkas Ringkas */
         .info-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         .info-table th, .info-table td { padding: 10px 12px; border-bottom: 1px solid #eceff1; font-size: 13px; vertical-align: top; }
         .info-table th { color: #78909c; font-weight: 500; width: 35%; text-align: left; }
@@ -71,8 +71,6 @@
         <table class="info-table">
             <tr><th>No. Surat</th><td id="docNomor">-</td></tr>
             <tr><th>Tanggal Terbit</th><td id="docTanggal">-</td></tr>
-            <tr><th>Tujuan Surat</th><td id="docKepada">-</td></tr>
-            <tr><th>Instansi Tujuan</th><td id="docInstansi">-</td></tr>
         </table>
 
         <div class="heading-section">Identitas Mahasiswa</div>
@@ -112,17 +110,17 @@
         if (!dataB64) {
             document.getElementById('error').style.display = 'block';
         } else {
-            // Unpack Base64 URL-safe string
             const standardB64 = dataB64.replace(/_/g, '/').replace(/-/g, '+');
             const decodedString = atob(standardB64);
             const parsedJson = decodeURIComponent(decodedString);
             const dataArr = JSON.parse(parsedJson);
 
-            // Mapping elemen array data (Index 0 sudah berisi kombinasi Nomor + Kode Surat utuh)
+            // Mapping elemen array data dari URL
             document.getElementById('docNomor').innerText = dataArr[0] || "-";
             document.getElementById('docTanggal').innerText = dataArr[1] || "-";
-            document.getElementById('docKepada').innerText = dataArr[2] || "-";
-            document.getElementById('docInstansi').innerText = dataArr[3] || "-";
+            
+            // dataArr[2] (KepadaYth) dan dataArr[3] (Instansi) tetap dibaca di background tapi sengaja tidak kita mapping ke elemen HTML agar tidak tampil atas.
+            
             document.getElementById('docNama').innerText = dataArr[4] || "-";
             document.getElementById('docNim').innerText = dataArr[5] || "-";
             document.getElementById('docProdi').innerText = dataArr[6] || "-";
@@ -140,7 +138,7 @@
             }
             document.getElementById('areaData').innerHTML = htmlData;
 
-            // Buka tampilan utama
+            // Buka tampilan utama jika sukses
             document.getElementById('content').style.display = 'block';
         }
     } catch (e) {
