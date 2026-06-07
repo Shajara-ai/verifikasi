@@ -28,7 +28,7 @@
         .status-container { display: flex; flex-direction: column; align-items: center; gap: 8px; margin-bottom: 25px; }
         .status-badge { background-color: #e8f5e9; color: var(--secondary-color); padding: 10px 24px; border-radius: 50px; font-weight: 700; font-size: 13px; letter-spacing: 0.5px; border: 1px solid #a5d6a7; display: inline-flex; align-items: center; gap: 8px; }
         
-        /* Tabel Informasi Berkas Ringkas */
+        /* Tabel Informasi Berkas */
         .info-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         .info-table th, .info-table td { padding: 10px 12px; border-bottom: 1px solid #eceff1; font-size: 13px; vertical-align: top; }
         .info-table th { color: #78909c; font-weight: 500; width: 35%; text-align: left; }
@@ -37,12 +37,21 @@
         /* Pembatas Sub-Konten */
         .heading-section { font-size: 12px; font-weight: 700; color: var(--primary-color); text-transform: uppercase; letter-spacing: 1px; padding: 6px 12px; background: #f1f8e9; border-left: 4px solid var(--primary-color); margin-top: 25px; text-align: left; border-radius: 0 4px 4px 0; }
         
-        /* 🔒 Kotak Pernyataan Pengesahan Dekan */
-        .legal-statement-box { background: #fbfbfc; border: 1px solid #e0e0e0; border-radius: 10px; padding: 15px; margin-top: 25px; text-align: left; position: relative; overflow: hidden; }
-        .legal-statement-box::before { content: ""; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: #2980b9; }
-        .legal-title { font-size: 11px; font-weight: 700; color: #2980b9; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
-        .legal-text { font-size: 12px; color: #37474f; font-weight: 400; line-height: 1.5; text-align: justify; }
-        .legal-text strong { color: #111; }
+        /* 📦 Kotak Premium untuk Judul/Topik & Pernyataan Dekan */
+        .premium-box { background: #fbfbfc; border: 1px solid #e0e0e0; border-radius: 10px; padding: 15px; margin-top: 15px; text-align: left; position: relative; overflow: hidden; }
+        .premium-box::before { content: ""; position: absolute; top: 0; left: 0; width: 4px; height: 100%; }
+        
+        /* Kotak Premium Judul / Topik (Biru Navy Tradisional) */
+        .box-judul { border-color: #b3e5fc; background: #f7fbfd; }
+        .box-judul::before { background: #0288d1; }
+        .box-judul-title { font-size: 11px; font-weight: 700; color: #0288d1; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
+        .box-judul-text { font-size: 13px; color: #1a237e; font-weight: 600; line-height: 1.5; text-align: justify; text-transform: uppercase; }
+
+        /* Kotak Premium Pengesahan Dekan */
+        .box-legal { border-color: #e0e0e0; }
+        .box-legal::before { background: #2980b9; }
+        .box-legal-title { font-size: 11px; font-weight: 700; color: #2980b9; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
+        .box-legal-text { font-size: 12px; color: #37474f; font-weight: 400; line-height: 1.5; text-align: justify; }
 
         .error-msg { color: #d32f2f; font-weight: 700; margin: 30px 0; display: none; font-size: 14px; }
         .footer { margin-top: 30px; font-size: 11px; color: #90a4ae; border-top: 1px solid #eceff1; padding-top: 15px; font-weight: 500; text-align: center; }
@@ -64,7 +73,6 @@
             <div class="status-badge">🛡️ DOKUMEN ASLI & TERVERIFIKASI</div>
         </div>
         
-        <!-- Hanya menampilkan No. Surat murni dan Tanggal Terbit -->
         <table class="info-table">
             <tr><th>No. Surat</th><td id="docNomor">-</td></tr>
             <tr><th>Tanggal Terbit</th><td id="docTanggal">-</td></tr>
@@ -77,15 +85,15 @@
             <tr><th>Program Studi</th><td id="docProdi">-</td></tr>
         </table>
 
-        <div class="heading-section">Rencana Penelitian</div>
-        <table class="info-table">
-            <tr><th>Judul / Topik</th><td id="docJudul" style="font-weight: 600; color: #1a237e;">-</td></tr>
-        </table>
+        <div class="heading-section">Judul / Topik</div>
+        <div class="premium-box box-judul">
+            <div class="box-judul-title">Judul Penelitian Terkunci Sistem</div>
+            <div class="box-judul-text" id="docJudul">-</div>
+        </div>
 
-        <!-- 🔒 Blok Pernyataan Resmi Pengesahan Dokumen Dekan -->
-        <div class="legal-statement-box">
-            <div class="legal-title">Pernyataan Pengesahan Elektronik</div>
-            <div class="legal-text">
+        <div class="premium-box box-legal" style="margin-top: 25px;">
+            <div class="box-legal-title">Pernyataan Pengesahan Elektronik</div>
+            <div class="box-legal-text">
                 Dokumen ini merupakan produk hukum elektronik resmi yang diterbitkan oleh Fakultas Ilmu Kesehatan Universitas Faletehan. Dokumen ini telah diperiksa secara sistemik dan <strong>disetujui secara digital oleh Dekan Fakultas Ilmu Kesehatan, Ahmad Jubaedi, S.KM., M.KM</strong>, menyatakan sah serta berlaku sejak tanggal diterbitkan.
             </div>
         </div>
@@ -105,30 +113,26 @@
         if (!dataB64) {
             document.getElementById('error').style.display = 'block';
         } else {
-            // Membongkar data sandi Base64 URL Safe
             const standardB64 = dataB64.replace(/_/g, '/').replace(/-/g, '+');
             const decodedString = atob(standardB64);
             const parsedJson = decodeURIComponent(decodedString);
             const dataArr = JSON.parse(parsedJson);
 
-            // Tampilkan nomor angka murni dari index 0 (Misal: 2216)
+            // Tampilkan nomor angka depan murni dan detail berkas
             document.getElementById('docNomor').innerText = dataArr[0] || "-";
             document.getElementById('docTanggal').innerText = dataArr[1] || "-";
             document.getElementById('docNama').innerText = dataArr[4] || "-";
             document.getElementById('docNim').innerText = dataArr[5] || "-";
             document.getElementById('docProdi').innerText = dataArr[6] || "-";
             
-            // Tampilkan Judul dan paksa CSS menjadi HURUF KAPITAL di layar agar formal
-            let judulValidasi = dataArr[7] || "-";
-            let elemenJudul = document.getElementById('docJudul');
-            elemenJudul.innerText = judulValidasi;
-            elemenJudul.style.textTransform = "uppercase";
+            // 🟢 Tampilkan judul lengkap secara penuh di dalam kotak premium baru
+            document.getElementById('docJudul').innerText = dataArr[7] || "-";
 
-            // Tampilkan wadah utama halaman verifikasi
+            // Buka halaman utama
             document.getElementById('content').style.display = 'block';
         }
     } catch (e) {
-        console.error("Gagal melakukan dekripsi parameter data:", e);
+        console.error("Gagal melakukan verifikasi dokumen:", e);
         document.getElementById('error').style.display = 'block';
     }
 </script>
