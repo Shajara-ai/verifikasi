@@ -104,47 +104,43 @@
 
 <script>
     try {
-        const urlParams = new URLSearchParams(window.location.search);
-        const dataB64 = urlParams.get('d');
+    const urlParams = new URLSearchParams(window.location.search);
+    const dataB64 = urlParams.get('d');
 
-        if (!dataB64) {
-            document.getElementById('error').style.display = 'block';
-        } else {
-            const standardB64 = dataB64.replace(/_/g, '/').replace(/-/g, '+');
-            const decodedString = atob(standardB64);
-            const parsedJson = decodeURIComponent(decodedString);
-            const dataArr = JSON.parse(parsedJson);
-
-            // Mapping elemen array data dari URL
-            document.getElementById('docNomor').innerText = dataArr[0] || "-";
-            document.getElementById('docTanggal').innerText = dataArr[1] || "-";
-            
-            // dataArr[2] (KepadaYth) dan dataArr[3] (Instansi) tetap dibaca di background tapi sengaja tidak kita mapping ke elemen HTML agar tidak tampil atas.
-            
-            document.getElementById('docNama').innerText = dataArr[4] || "-";
-            document.getElementById('docNim').innerText = dataArr[5] || "-";
-            document.getElementById('docProdi').innerText = dataArr[6] || "-";
-            document.getElementById('docJudul').innerText = dataArr[7] || "-";
-
-            // Mengurai data pencarian (delimiter <->)
-            let htmlData = "";
-            if (dataArr[8] && dataArr[8].trim() !== "" && dataArr[8] !== "-") {
-                const items = dataArr[8].split('<->');
-                items.forEach(item => {
-                    if(item.trim()) htmlData += "<li>" + item.trim() + "</li>";
-                });
-            } else {
-                htmlData = "<li>Data Primer Hasil Observasi dan Pendukung Lainnya</li>";
-            }
-            document.getElementById('areaData').innerHTML = htmlData;
-
-            // Buka tampilan utama jika sukses
-            document.getElementById('content').style.display = 'block';
-        }
-    } catch (e) {
-        console.error("Gagal melakukan verifikasi dokumen:", e);
+    if (!dataB64) {
         document.getElementById('error').style.display = 'block';
+    } else {
+        const standardB64 = dataB64.replace(/_/g, '/').replace(/-/g, '+');
+        const decodedString = atob(standardB64);
+        const parsedJson = decodeURIComponent(decodedString);
+        const dataArr = JSON.parse(parsedJson);
+
+        // 🟢 Menggunakan decodeURIComponent khusus untuk No Surat agar karakter '/' dan teks 'V/2026' kembali utuh
+        document.getElementById('docNomor').innerText = decodeURIComponent(dataArr[0] || "-");
+        document.getElementById('docTanggal').innerText = dataArr[1] || "-";
+        
+        document.getElementById('docNama').innerText = dataArr[4] || "-";
+        document.getElementById('docNim').innerText = dataArr[5] || "-";
+        document.getElementById('docProdi').innerText = dataArr[6] || "-";
+        document.getElementById('docJudul').innerText = dataArr[7] || "-";
+
+        let htmlData = "";
+        if (dataArr[8] && dataArr[8].trim() !== "" && dataArr[8] !== "-") {
+            const items = dataArr[8].split('<->');
+            items.forEach(item => {
+                if(item.trim()) htmlData += "<li>" + item.trim() + "</li>";
+            });
+        } else {
+            htmlData = "<li>Data Primer Hasil Observasi dan Pendukung Lainnya</li>";
+        }
+        document.getElementById('areaData').innerHTML = htmlData;
+
+        document.getElementById('content').style.display = 'block';
     }
+} catch (e) {
+    console.error("Gagal melakukan verifikasi dokumen:", e);
+    document.getElementById('error').style.display = 'block';
+}
 </script>
 </body>
 </html>
