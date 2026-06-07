@@ -3,93 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Verifikasi Dokumen FIKes Faletehan</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <title>Sistem Validasi Dokumen Akademik - FIKes Faletehan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #27ae60;
-            --bg-color: #f4f6f9;
-            --text-color: #2c3e50;
+            --primary-color: #1b5e20;
+            --secondary-color: #2e7d32;
+            --bg-color: #f0f4f1;
+            --text-color: #263238;
+            --border-color: #cfd8dc;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Poppins', sans-serif; background-color: var(--bg-color); color: var(--text-color); line-height: 1.6; padding: 20px; }
-        .container { max-width: 500px; background: white; margin: 20px auto; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; border-top: 8px solid var(--primary-color); }
-        .logo-header { width: 80px; margin-bottom: 15px; }
-        .status-badge { background-color: #e8f8f0; color: var(--primary-color); padding: 12px 20px; border-radius: 30px; font-weight: 700; display: inline-block; margin-bottom: 10px; font-size: 14px; border: 1px solid #b7ebb3; }
-        .dekan-badge { background-color: #ebf5fb; color: #2980b9; padding: 6px 15px; border-radius: 20px; font-weight: 600; display: inline-block; margin-bottom: 20px; font-size: 11px; border: 1px solid #aed6f1; text-transform: uppercase; }
-        .info-table { width: 100%; border-collapse: collapse; margin-top: 15px; text-align: left; }
-        .info-table th, .info-table td { padding: 10px; border-bottom: 1px solid #ededed; font-size: 13px; vertical-align: top; }
-        .info-table th { color: #7f8c8d; font-weight: 400; width: 35%; }
+        body { font-family: 'Poppins', sans-serif; background-color: var(--bg-color); color: var(--text-color); line-height: 1.6; padding: 15px; }
+        
+        .container { max-width: 550px; background: white; margin: 15px auto; padding: 30px; border-radius: 16px; box-shadow: 0 12px 35px rgba(0,0,0,0.08); border-top: 10px solid var(--primary-color); position: relative; }
+        
+        /* Header Formal */
+        .header-section { text-align: center; margin-bottom: 25px; border-bottom: 2px double var(--border-color); padding-bottom: 15px; }
+        .logo-header { width: 85px; margin-bottom: 10px; }
+        .header-section h3 { font-size: 16px; font-weight: 700; color: #111; letter-spacing: 0.5px; text-transform: uppercase; }
+        .header-section p { color: #546e7a; font-size: 12px; font-weight: 500; }
+        
+        /* Badge Status Premium */
+        .status-container { display: flex; flex-direction: column; align-items: center; gap: 8px; margin-bottom: 25px; }
+        .status-badge { background-color: #e8f5e9; color: var(--secondary-color); padding: 10px 24px; border-radius: 50px; font-weight: 700; font-size: 13px; letter-spacing: 0.5px; border: 1px solid #a5d6a7; display: inline-flex; align-items: center; gap: 8px; }
+        
+        /* Tabel Informasi */
+        .info-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .info-table th, .info-table td { padding: 10px 12px; border-bottom: 1px solid #eceff1; font-size: 13px; vertical-align: top; }
+        .info-table th { color: #78909c; font-weight: 500; width: 35%; text-align: left; }
         .info-table td { font-weight: 600; color: var(--text-color); }
-        .heading-section { font-size: 12px; font-weight: 700; color: var(--primary-color); text-transform: uppercase; letter-spacing: 1px; padding: 8px 12px; background: #f9f9f9; border-left: 4px solid var(--primary-color); margin-top: 15px; text-align: left; }
-        .list-data { padding-left: 20px; font-weight: 600; font-size: 13px; text-align: left; margin-top: 5px; color: var(--text-color); }
-        .list-data li { padding: 3px 0; border-bottom: 1px dashed #ededed; }
-        .error-msg { color: #e74c3c; font-weight: bold; margin: 20px 0; display: none; }
-        .footer { margin-top: 25px; font-size: 11px; color: #95a5a6; border-top: 1px solid #eee; padding-top: 15px; }
+        
+        /* Heading Section */
+        .heading-section { font-size: 12px; font-weight: 700; color: var(--primary-color); text-transform: uppercase; letter-spacing: 1px; padding: 6px 12px; background: #f1f8e9; border-left: 4px solid var(--primary-color); margin-top: 25px; text-align: left; border-radius: 0 4px 4px 0; }
+        
+        /* List Data */
+        .list-data { padding-left: 20px; font-weight: 600; font-size: 13px; text-align: left; margin-top: 8px; color: var(--text-color); }
+        .list-data li { padding: 4px 0; border-bottom: 1px dashed #cfd8dc; }
+        
+        /* 🔒 Pernyataan Resmi Dekan */
+        .legal-statement-box { background: #fbfbfc; border: 1px solid #e0e0e0; border-radius: 10px; padding: 15px; margin-top: 25px; text-align: left; position: relative; overflow: hidden; }
+        .legal-statement-box::before { content: ""; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: #2980b9; }
+        .legal-title { font-size: 11px; font-weight: 700; color: #2980b9; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
+        .legal-text { font-size: 12px; color: #37474f; font-weight: 400; line-height: 1.5; text-align: justify; }
+        .legal-text strong { color: #111; }
+
+        .error-msg { color: #d32f2f; font-weight: 700; margin: 30px 0; display: none; font-size: 14px; }
+        .footer { margin-top: 30px; font-size: 11px; color: #90a4ae; border-top: 1px solid #eceff1; padding-top: 15px; font-weight: 500; text-align: center; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <img src="files/logo.jpeg" alt="Logo Kampus" class="logo-header" onerror="this.style.display='none'">
-    <h3>Sistem Validasi Surat Elektronik</h3>
-    <p style="color: #7f8c8d; font-size: 12px; margin-bottom: 15px;">Faculty of Health Sciences (FIKes)</p>
+    <div class="header-section">
+        <img src="https://raw.githubusercontent.com/Shajara-ai/verifikasi/main/files/logo.jpeg" alt="Logo Kampus" class="logo-header" onerror="this.src='https://placehold.co/100x100?text=UF'">
+        <h3>Sistem Validasi Dokumen Akademik</h3>
+        <p>Faculty of Health Sciences (FIKes) • Universitas Faletehan</p>
+    </div>
 
-    <div id="error" class="error-msg">❌ Data Tautan Surat Tidak Valid / Rusak!</div>
+    <div id="error" class="error-msg">❌ Data Tautan Surat Tidak Valid atau Struktur Rusak!</div>
 
     <div id="content" style="display: none;">
-        <div class="status-badge">🟢 DOKUMEN ASLI & VALID</div>
-        <div class="dekan-badge">🔒 DISETUJUI OLEH DEKAN FIKES</div>
+        <div class="status-container">
+            <div class="status-badge">🛡️ DOKUMEN ASLI & TERVERIFIKASI</div>
+        </div>
         
         <table class="info-table">
             <tr><th>No. Surat</th><td id="docNomor">-</td></tr>
+            <tr><th>Kode Klasifikasi</th><td id="docKodeSurat">-</td></tr>
             <tr><th>Tanggal Terbit</th><td id="docTanggal">-</td></tr>
             <tr><th>Tujuan Surat</th><td id="docKepada">-</td></tr>
-            <tr><th>Instansi</th><td id="docInstansi">-</td></tr>
+            <tr><th>Instansi Tujuan</th><td id="docInstansi">-</td></tr>
         </table>
 
         <div class="heading-section">Identitas Mahasiswa</div>
         <table class="info-table">
-            <tr><th>Nama Mhs</th><td id="docNama">-</td></tr>
+            <tr><th>Nama Mahasiswa</th><td id="docNama">-</td></tr>
             <tr><th>NIM</th><td id="docNim">-</td></tr>
-            <tr><th>Prodi</th><td id="docProdi">-</td></tr>
+            <tr><th>Program Studi</th><td id="docProdi">-</td></tr>
         </table>
 
-        <div class="heading-section">Topik Penelitian</div>
+        <div class="heading-section">Rencana Penelitian</div>
         <table class="info-table">
-            <tr><th>Judul</th><td id="docJudul" style="font-style: italic;">-</td></tr>
+            <tr><th>Judul / Topik</th><td id="docJudul" style="font-style: italic; font-weight: 500; color: #1a237e;">-</td></tr>
         </table>
 
-        <div class="heading-section">Data Yang Dicari</div>
+        <div class="heading-section">Data yang Diperlukan</div>
         <ul class="list-data" id="areaData"></ul>
+
+        <!-- 🔒 Blok Pernyataan Dokumen Sah Dekan -->
+        <div class="legal-statement-box">
+            <div class="legal-title">Pernyataan Pengesahan Elektronik</div>
+            <div class="legal-text">
+                Dokumen ini merupakan produk hukum elektronik resmi yang diterbitkan oleh Fakultas Ilmu Kesehatan Universitas Faletehan. Dokumen ini telah diperiksa secara sistemik dan <strong>disetujui secara digital oleh Dekan Fakultas Ilmu Kesehatan, Ahmad Jubaedi, S.KM., M.KM</strong>, menyatakan sah serta berlaku sejak tanggal diterbitkan.
+            </div>
+        </div>
     </div>
 
     <div class="footer">
-        Sistem Penjaminan Mutu Academic<br>
+        Sistem Penjaminan Mutu Akademik<br>
         <strong>Universitas Faletehan</strong>
     </div>
 </div>
 
 <script>
     try {
-        // Ambil data terenkripsi dari parameter '?d=' di URL
         const urlParams = new URLSearchParams(window.location.search);
         const dataB64 = urlParams.get('d');
 
         if (!dataB64) {
             document.getElementById('error').style.display = 'block';
         } else {
-            // Normalisasi kembali karakter URL-safe Base64 ke Base64 standar
             const standardB64 = dataB64.replace(/_/g, '/').replace(/-/g, '+');
-            
-            // Decode string Base64 menjadi string biner asli
             const decodedString = atob(standardB64);
-            
-            // Uraikan string URL decode menjadi teks UTF-8 asli
             const parsedJson = decodeURIComponent(decodedString);
             const dataArr = JSON.parse(parsedJson);
 
-            // Mapping array data hasil urai ke elemen HTML masing-masing
+            // Mapping 10 elemen parameter data array
             document.getElementById('docNomor').innerText = dataArr[0] || "-";
             document.getElementById('docTanggal').innerText = dataArr[1] || "-";
             document.getElementById('docKepada').innerText = dataArr[2] || "-";
@@ -98,8 +128,8 @@
             document.getElementById('docNim').innerText = dataArr[5] || "-";
             document.getElementById('docProdi').innerText = dataArr[6] || "-";
             document.getElementById('docJudul').innerText = dataArr[7] || "-";
+            document.getElementById('docKodeSurat').innerText = dataArr[9] || "-"; // Mengambil Index 9 (KodeSurat)
 
-            // Mengurai list data pencarian yang memakai delimiter <->
             let htmlData = "";
             if (dataArr[8] && dataArr[8].trim() !== "" && dataArr[8] !== "-") {
                 const items = dataArr[8].split('<->');
@@ -107,15 +137,14 @@
                     if(item.trim()) htmlData += "<li>" + item.trim() + "</li>";
                 });
             } else {
-                htmlData = "<li>Data Primer Hasil Observasi dan Pendukung Lainnya dari Lokasi Penelitian</li>";
+                htmlData = "<li>Data Primer Hasil Observasi dan Pendukung Lainnya</li>";
             }
             document.getElementById('areaData').innerHTML = htmlData;
 
-            // Tampilkan komponen utama jika seluruh data sukses diurai
             document.getElementById('content').style.display = 'block';
         }
     } catch (e) {
-        console.error("Gagal melakukan urai data verifikasi berkas:", e);
+        console.error(e);
         document.getElementById('error').style.display = 'block';
     }
 </script>
