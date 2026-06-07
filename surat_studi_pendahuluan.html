@@ -41,11 +41,11 @@
         .premium-box { background: #fbfbfc; border: 1px solid #e0e0e0; border-radius: 10px; padding: 15px; margin-top: 15px; text-align: left; position: relative; overflow: hidden; }
         .premium-box::before { content: ""; position: absolute; top: 0; left: 0; width: 4px; height: 100%; }
         
-        /* Kotak Premium Judul / Topik (Biru Navy Tradisional) */
+        /* Kotak Premium Judul / Topik (Mengikuti bentuk huruf asli berkas) */
         .box-judul { border-color: #b3e5fc; background: #f7fbfd; }
         .box-judul::before { background: #0288d1; }
         .box-judul-title { font-size: 11px; font-weight: 700; color: #0288d1; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
-        .box-judul-text { font-size: 13px; color: #1a237e; font-weight: 600; line-height: 1.5; text-align: justify; text-transform: uppercase; }
+        .box-judul-text { font-size: 13px; color: #1a237e; font-weight: 600; line-height: 1.5; text-align: justify; }
 
         /* Kotak Premium Pengesahan Dekan */
         .box-legal { border-color: #e0e0e0; }
@@ -118,21 +118,21 @@
             const parsedJson = decodeURIComponent(decodedString);
             const dataArr = JSON.parse(parsedJson);
 
-            // Tampilkan nomor angka depan murni dan detail berkas
+            // Tampilkan informasi berkas utama
             document.getElementById('docNomor').innerText = dataArr[0] || "-";
             document.getElementById('docTanggal').innerText = dataArr[1] || "-";
             document.getElementById('docNama').innerText = dataArr[4] || "-";
             document.getElementById('docNim').innerText = dataArr[5] || "-";
             document.getElementById('docProdi').innerText = dataArr[6] || "-";
             
-            // 🟢 Tampilkan judul lengkap secara penuh di dalam kotak premium baru
+            // 🟢 Menampilkan judul asli secara utuh (Besar-kecilnya 100% mengikuti kiriman Python)
             document.getElementById('docJudul').innerText = dataArr[7] || "-";
 
             // Buka halaman utama
             document.getElementById('content').style.display = 'block';
         }
     } catch (e) {
-        console.error("Gagal melakukan verifikasi dokumen:", e);
+        console.error("Gagal melakukan verifikasi berkas enkripsi:", e);
         document.getElementById('error').style.display = 'block';
     }
 </script>
