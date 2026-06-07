@@ -24,7 +24,7 @@
         .header-section h3 { font-size: 16px; font-weight: 700; color: #111; letter-spacing: 0.5px; text-transform: uppercase; }
         .header-section p { color: #546e7a; font-size: 12px; font-weight: 500; }
         
-        /* Badge Status */
+        /* Badge Status Keaslian */
         .status-container { display: flex; flex-direction: column; align-items: center; gap: 8px; margin-bottom: 25px; }
         .status-badge { background-color: #e8f5e9; color: var(--secondary-color); padding: 10px 24px; border-radius: 50px; font-weight: 700; font-size: 13px; letter-spacing: 0.5px; border: 1px solid #a5d6a7; display: inline-flex; align-items: center; gap: 8px; }
         
@@ -64,6 +64,7 @@
             <div class="status-badge">🛡️ DOKUMEN ASLI & TERVERIFIKASI</div>
         </div>
         
+        <!-- Hanya menampilkan No. Surat murni dan Tanggal Terbit -->
         <table class="info-table">
             <tr><th>No. Surat</th><td id="docNomor">-</td></tr>
             <tr><th>Tanggal Terbit</th><td id="docTanggal">-</td></tr>
@@ -78,9 +79,10 @@
 
         <div class="heading-section">Rencana Penelitian</div>
         <table class="info-table">
-            <tr><th>Judul / Topik</th><td id="docJudul" style="font-style: italic; font-weight: 500; color: #1a237e;">-</td></tr>
+            <tr><th>Judul / Topik</th><td id="docJudul" style="font-weight: 600; color: #1a237e;">-</td></tr>
         </table>
 
+        <!-- 🔒 Blok Pernyataan Resmi Pengesahan Dokumen Dekan -->
         <div class="legal-statement-box">
             <div class="legal-title">Pernyataan Pengesahan Elektronik</div>
             <div class="legal-text">
@@ -103,24 +105,30 @@
         if (!dataB64) {
             document.getElementById('error').style.display = 'block';
         } else {
+            // Membongkar data sandi Base64 URL Safe
             const standardB64 = dataB64.replace(/_/g, '/').replace(/-/g, '+');
             const decodedString = atob(standardB64);
             const parsedJson = decodeURIComponent(decodedString);
             const dataArr = JSON.parse(parsedJson);
 
-            // Tampilkan nomor angka depan murni
+            // Tampilkan nomor angka murni dari index 0 (Misal: 2216)
             document.getElementById('docNomor').innerText = dataArr[0] || "-";
             document.getElementById('docTanggal').innerText = dataArr[1] || "-";
             document.getElementById('docNama').innerText = dataArr[4] || "-";
             document.getElementById('docNim').innerText = dataArr[5] || "-";
             document.getElementById('docProdi').innerText = dataArr[6] || "-";
-            document.getElementById('docJudul').innerText = dataArr[7] || "-";
+            
+            // Tampilkan Judul dan paksa CSS menjadi HURUF KAPITAL di layar agar formal
+            let judulValidasi = dataArr[7] || "-";
+            let elemenJudul = document.getElementById('docJudul');
+            elemenJudul.innerText = judulValidasi;
+            elemenJudul.style.textTransform = "uppercase";
 
-            // Tampilkan wadah konten utama
+            // Tampilkan wadah utama halaman verifikasi
             document.getElementById('content').style.display = 'block';
         }
     } catch (e) {
-        console.error("Gagal melakukan verifikasi dokumen:", e);
+        console.error("Gagal melakukan dekripsi parameter data:", e);
         document.getElementById('error').style.display = 'block';
     }
 </script>
