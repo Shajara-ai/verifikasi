@@ -1,117 +1,206 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Verifikasi Dokumen FIKes Faletehan</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary-color: #27ae60;
-            --bg-color: #f4f6f9;
-            --text-color: #2c3e50;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Poppins', sans-serif; background-color: var(--bg-color); color: var(--text-color); line-height: 1.6; padding: 20px; }
-        .container { max-width: 500px; background: white; margin: 20px auto; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; border-top: 8px solid var(--primary-color); }
-        .logo-header { width: 80px; margin-bottom: 15px; }
-        .status-badge { background-color: #e8f8f0; color: var(--primary-color); padding: 12px 20px; border-radius: 30px; font-weight: 700; display: inline-block; margin-bottom: 10px; font-size: 14px; border: 1px solid #b7ebb3; }
-        .dekan-badge { background-color: #ebf5fb; color: #2980b9; padding: 6px 15px; border-radius: 20px; font-weight: 600; display: inline-block; margin-bottom: 20px; font-size: 11px; border: 1px solid #aed6f1; text-transform: uppercase; }
-        .info-table { width: 100%; border-collapse: collapse; margin-top: 15px; text-align: left; }
-        .info-table th, .info-table td { padding: 10px; border-bottom: 1px solid #ededed; font-size: 13px; vertical-align: top; }
-        .info-table th { color: #7f8c8d; font-weight: 400; width: 35%; }
-        .info-table td { font-weight: 600; color: var(--text-color); }
-        .heading-section { font-size: 12px; font-weight: 700; color: var(--primary-color); text-transform: uppercase; letter-spacing: 1px; padding: 8px 12px; background: #f9f9f9; border-left: 4px solid var(--primary-color); margin-top: 15px; text-align: left; }
-        .list-data { padding-left: 20px; font-weight: 600; font-size: 13px; text-align: left; margin-top: 5px; color: var(--text-color); }
-        .list-data li { padding: 3px 0; border-bottom: 1px dashed #ededed; }
-        .error-msg { color: #e74c3c; font-weight: bold; margin: 20px 0; display: none; }
-        .footer { margin-top: 25px; font-size: 11px; color: #95a5a6; border-top: 1px solid #eee; padding-top: 15px; }
-    </style>
-</head>
-<body>
+import pandas as pd
+import time
+import pyperclip
+import os
+import re
+import sys
+import traceback
+import base64
+import json
+import urllib.parse
+import qrcode
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from openpyxl import load_workbook, Workbook
+from docxtpl import DocxTemplate, RichText, InlineImage
+from docx.shared import Mm
+from docx2pdf import convert
 
-<div class="container">
-    <img src="files/logo.jpeg" alt="Logo Kampus" class="logo-header" onerror="this.style.display='none'">
-    <h3 style="margin-bottom: 5px; font-size: 16px;">Sistem Validasi Surat Elektronik</h3>
-    <p style="color: #7f8c8d; font-size: 12px; margin-bottom: 15px;">Faculty of Health Sciences (FIKes)</p>
+# --- KONFIGURASI PORTABLE DINAMIS ---
+if getattr(sys, 'frozen', False):
+    BASE_DIR = os.path.dirname(sys.executable)
+else:
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-    <div id="error" class="error-msg">❌ Data Tautan Surat Tidak Valid / Rusak!</div>
+FOLDER_OUTPUT_UTAMA = os.path.join(BASE_DIR, 'surat studi pendahuluan cetak')
+FILE_ASLI = os.path.join(BASE_DIR, 'Surat Studi Pendahuluan.xlsx')
+FILE_TEMPLATE = os.path.join(BASE_DIR, 'Templet Surat Studi Pendahuluan - Barcode.docx')
 
-    <div id="content" style="display: none;">
-        <div class="status-badge">🟢 DOKUMEN ASLI & VALID</div>
-        <div class="dekan-badge">🔒 DISETUJUI OLEH DEKAN FIKES</div>
+if not os.path.exists(FOLDER_OUTPUT_UTAMA):
+    os.makedirs(FOLDER_OUTPUT_UTAMA)
+
+# --- FUNGSI PENDUKUNG ---
+def bersihkan_semua_petik(teks):
+    if not teks or str(teks).lower() == 'nan': return ""
+    teks = re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f]', '', str(teks))
+    return teks.replace("*", "").replace("'", "").replace('"', "").strip()
+
+def limit_filename(text, max_length=40):
+    clean = re.sub(r'[\\/*?:"<>|]', "", str(text or "Instansi"))
+    return clean[:max_length].strip() if len(clean) > max_length else clean.strip()
+
+def format_nomor_hp(no_hp):
+    teks = bersihkan_semua_petik(no_hp)
+    if not teks: return ""
+    digits = re.sub(r'\D', '', teks)
+    if digits.startswith('62'): return '0' + digits[2:]
+    elif digits.startswith('8'): return '0' + digits
+    return digits
+
+def format_tanggal_dua_digit(teks_tanggal):
+    teks = bersihkan_semua_petik(teks_tanggal)
+    if not teks: return ""
+    match = re.search(r'(\d+)\s+([a-zA-Z]+)\s+(\d+)', teks)
+    if match:
+        hari, bulan, tahun = match.group(1), match.group(2), match.group(3)
+        return f"{hari.zfill(2)} {bulan} {tahun}"
+    return teks
+
+def buat_rich_text(teks, bold_default=False):
+    teks = bersihkan_semua_petik(teks)
+    rt = RichText()
+    try:
+        parts = re.split(r'(<\+>.*?</\+>)', teks, flags=re.DOTALL)
+        for part in parts:
+            if part.startswith('<+>') and part.endswith('</+>'):
+                clean_content = part.replace('<+>', '').replace('</+>', '')
+                rt.add(clean_content, italic=True, bold=bold_default, font='Times New Roman', size=24)
+            else:
+                rt.add(part, italic=False, bold=bold_default, font='Times New Roman', size=24)
+        return rt
+    except Exception as e:
+        print(f"⚠️ Gagal parsing RichText: {e}")
+        rt.add(teks, bold=bold_default, font='Times New Roman', size=24)
+        return rt
+
+# --- TAHAP 1: KOREKSI DENGAN GEMINI DENGAN PREDIKSI STRUKTUR CADANGAN ---
+def jalankan_koreksi_gemini():
+    print(f"--- [START] TAHAP 1: KOREKSI GEMINI (BATCH MODE) ---")
+    if not os.path.exists(FILE_ASLI):
+        print(f"❌ Excel tidak ditemukan di: {FILE_ASLI}"); return
+
+    chrome_options = Options()
+    chrome_options.add_experimental_option("debuggerAddress", "127.0.0.1:9222")
+    try:
+        driver = webdriver.Chrome(options=chrome_options)
+        wait = WebDriverWait(driver, 60)
+    except:
+        print("❌ Gagal konek Port 9222! Pastikan Chrome Debug Mode aktif."); return
+
+    try:
+        wb = load_workbook(FILE_ASLI)
+        ws = wb.active
+    except PermissionError:
+        print("❌ File Excel sedang dibuka! Tutup dulu."); return
+
+    baris_target = []
+    for row in range(2, ws.max_row + 1):
+        nama_mhs = str(ws.cell(row=row, column=4).value or "").strip()
+        status = str(ws.cell(row=row, column=18).value or "").strip().lower()
+        if nama_mhs and status != "sudah dikoreksi":
+            baris_target.append(row)
+
+    if not baris_target:
+        print("✅ Semua baris sudah dikoreksi."); return
+
+    ukuran_batch = 10
+    for i in range(0, len(baris_target), ukuran_batch):
+        batch = baris_target[i:i + ukuran_batch]
         
-        <table class="info-table">
-            <tr><th>No. Surat</th><td id="docNomor">-</td></tr>
-            <tr><th>Tanggal Terbit</th><td id="docTanggal">-</td></tr>
-            <tr><th>Tujuan Surat</th><td id="docKepada">-</td></tr>
-            <tr><th>Instansi</th><td id="docInstansi">-</td></tr>
-        </table>
+        data_gabungan_batch = ""
+        for r in batch:
+            row_raw = " | ".join([str(ws.cell(row=r, column=c).value or "") for c in range(1, 18)])
+            data_gabungan_batch += f"ID_BARIS_{r}: {row_raw}\n"
 
-        <div class="heading-section">Identitas Mahasiswa</div>
-        <table class="info-table">
-            <tr><th>Nama Mhs</th><td id="docNama">-</td></tr>
-            <tr><th>NIM</th><td id="docNim">-</td></tr>
-            <tr><th>Prodi</th><td id="docProdi">-</td></tr>
-        </table>
+        prompt_multiline = f"""Mohon proses data di bawah ini satu per satu. 
+Wajib balas setiap baris dengan format: [HASIL]ID_BARIS_N: hasil_perbaikan[/HASIL]
 
-        <div class="heading-section">Topik Penelitian</div>
-        <table class="info-table">
-            <tr><th>Judul</th><td id="docJudul" style="font-style: italic;">-</td></tr>
-        </table>
+BERIKUT PERINTAH PERBAIKANNYA:
+{'-'*15}
+Perbaiki data ini dalam format [HASIL]...[/HASIL] dipisahkan pipe (|).
+PERINTAH:
+Kolom J:
+1. WAJIB awali dengan kata jabatan:
+   - Jika sekolah (SD/SMP/SMA/SMK/MI), awali dengan "Kepala ". Contoh: "Kepala SD Negeri 1".
+   - Jika Puskesmas, awali dengan "Kepala ". Contoh: "Kepala UPT Puskesmas X".
+   - Jika RSUD/Rumah Sakit, awali dengan "Direktur ". Contoh: "Direktur RSUD dr. Dradjat Prawiranegara".
+   - Jika Pesantren, awali dengan "Kepala Pondok Pesantren ".
+2. Pastikan penulisan SMA/SMP/SD Negeri diberi spasi (Contoh: SMA Negeri 1, bukan SMAN1).
+3. Jika tujuan adalah rsdp/rsud dr drajat prawiranegara, tulis lengkap: RSUD dr. Dradjat Prawiranegara.
 
-        <div class="heading-section">Data Yang Dicari</div>
-        <ul class="list-data" id="areaData"></ul>
-    </div>
+Kolom G (Judul Penelitian):
+1. Judul Penelitian ditulis mengikuti kaidah EYD pengecualian untuk kata hubung/preposisi harus di tulis kecil.
+2. Kata yang berbahasa inggris WAJIB diapit oleh penanda <+> dan </+> di awal dan di akhir kata.
+   Contoh: <+>Tripod Position</+> dan <+>Pursed Lip Breathing</+>.
+3. Jika judul terdapat kata Puskesmas identifikasi masuk UPT/UPTD kemudian tulis nama Puskesmas.
+4. Koreksi Jika ada typo penulisan.
 
-    <div class="footer">
-        Sistem Penjaminan Mutu Akademik<br>
-        <strong>Universitas Faletehan Serang</strong>
-    </div>
-</div>
+Kolom H:
+1. Penulisan mengikuti kaidah EYD pengecualian untuk kata hubung/preposisi harus ditulis kecil.
+2. Jika terdapat lebih dari satu poin data, wajib menggunakan pemisah <->, contoh: Data A <-> Data B <-> Data C.
+3. Jika terdapat kata Puskesmas identifikasi masuk UPT/UPTD kemudian tulis nama Puskesmas.
+4. Jika kosong, atau - kamu boleh menuliskan "Data Primer Hasil Observasi serta Data Pendukung Lainnya dari Lokasi Penelitian"
 
-<script>
-    try {
-        // Ambil parameter data terenkripsi Base64 dari URL (?d=...)
-        const urlParams = new URLSearchParams(window.location.search);
-        const dataB64 = urlParams.get('d');
+Kolom A: Tanggal Format indonesia.
 
-        if (!dataB64) {
-            document.getElementById('error').style.display = 'block';
-        } else {
-            // Decode Base64 kembali menjadi string teks asli UTF-8
-            const reresik = atob(dataB64.replace(/_/g, '/').replace(/-/g, '+'));
-            const dataArr = JSON.parse(decodeURIComponent(reresik));
+Kolom D: Nama harus proper.
+{'-'*15}
 
-            // mapping array data dari URL
-            document.getElementById('docNomor').innerText = dataArr[0];
-            document.getElementById('docTanggal').innerText = dataArr[1];
-            document.getElementById('docKepada').innerText = dataArr[2];
-            document.getElementById('docInstansi').innerText = dataArr[3];
-            document.getElementById('docNama').innerText = dataArr[4];
-            document.getElementById('docNim').innerText = dataArr[5];
-            document.getElementById('docProdi').innerText = dataArr[6];
-            document.getElementById('docJudul').innerText = dataArr[7];
+DATA:
+{data_gabungan_batch}"""
 
-            // Tampilkan rincian data pencarian (delimiter <->)
-            let htmlData = "";
-            if (dataArr[8]) {
-                const items = dataArr[8].split('<->');
-                items.forEach(item => {
-                    if(item.trim()) htmlData += "<li>" + item.trim() + "</li>";
-                });
-            } else {
-                htmlData = "<li>Data Primer Hasil Observasi dan Pendukung Lainnya</li>";
-            }
-            document.getElementById('areaData').innerHTML = htmlData;
+        try:
+            input_box = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "div[role='textbox']")))
+            old_count = len(driver.find_elements(By.CSS_SELECTOR, ".markdown"))
+            
+            input_box.click()
+            time.sleep(0.5)
+            input_box.send_keys(Keys.CONTROL, 'a', Keys.BACKSPACE)
+            
+            pyperclip.copy(prompt_multiline)
+            input_box.send_keys(Keys.CONTROL, 'v')
+            time.sleep(1.5)
+            input_box.send_keys(Keys.ENTER)
+            
+            print(f"⏳ Menunggu Batch Baris {batch}...")
+            
+            start_wait = time.time()
+            panjang_teks_terakhir = 0
+            waktu_terakhir_berubah = time.time()
+            
+            while True:
+                curr = driver.find_elements(By.CSS_SELECTOR, ".markdown")
+                if len(curr) > old_count:
+                    respon_terakhir = curr[-1].text
+                    panjang_sekarang = len(respon_terakhir)
+                    
+                    if panjang_sekarang > panjang_teks_terakhir:
+                        panjang_teks_terakhir = panjang_sekarang
+                        waktu_terakhir_berubah = time.time() 
+                    
+                    if ("[/HASIL]" in respon_terakhir or f"ID_BARIS_{batch[-1]}" in respon_terakhir):
+                        if time.time() - waktu_terakhir_berubah > 2.0: 
+                            break
+                            
+                if time.time() - start_wait > 240:
+                    print("⚠️ Timeout: Respon Gemini terlalu lama.")
+                    break
+                    
+                time.sleep(0.5)
+                
+            respon_gemini = curr[-1].text
+            pola = r"\[HASIL\]\s*ID_BARIS_(\d+):\s*(.*?)\[/HASIL\]"
+            hasil_matches = re.findall(pola, respon_gemini, re.DOTALL | re.IGNORECASE)
+            
+            if not hasil_matches:
+                pola_alt = r"ID_BARIS_(\d+):\s*\[HASIL\]\s*(.*?)\[/HASIL\]"
+                hasil_matches = re.findall(pola_alt, respon_gemini, re.DOTALL | re.IGNORECASE)
 
-            // Tampilkan box utama
-            document.getElementById('content').style.display = 'block';
-        }
-    } catch (e) {
-        console.error(e);
-        document.getElementById('error').style.display = 'block';
-    }
-</script>
-</body>
-</html>
+            print(f"🔍 Terdeteksi {len(hasil_matches)} dari {len(batch)} baris.")
+
+            for r_str, content in hasil_matches:
+                row_idx = int(
